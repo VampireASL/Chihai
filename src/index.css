@@ -1,0 +1,35 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  font-family: 'Noto Sans SC', Roboto, sans-serif;
+  background-color: #f8fafc;
+}
+
+@layer utilities {
+  .text-gradient {
+    background: linear-gradient(135deg, #1a365d 0%, #2c5282 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .bg-gradient-primary {
+    background: linear-gradient(135deg, #1a365d 0%, #2c5282 100%);
+  }
+
+  .bg-gradient-hero {
+    background: linear-gradient(135deg, rgba(26, 54, 93, 0.9) 0%, rgba(44, 82, 130, 0.8) 100%);
+  }
+}

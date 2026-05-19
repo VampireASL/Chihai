@@ -1,0 +1,91 @@
+0 verbose cli C:\Program Files\nodejs\node.exe C:\Program Files\nodejs\node_global\node_modules\npm\bin\npm-cli.js
+1 info using npm@10.8.1
+2 info using node@v24.14.0
+3 silly config load:file:C:\Program Files\nodejs\node_global\node_modules\npm\npmrc
+4 silly config load:file:D:\Doc\HBuilderProjects\ChiHai\.npmrc
+5 silly config load:file:C:\Users\liheng\.npmrc
+6 silly config load:file:C:\Program Files\nodejs\node_global\etc\npmrc
+7 verbose title npm install
+8 verbose argv "install"
+9 verbose logfile logs-max:10 dir:d:\Doc\HBuilderProjects\ChiHai\.npm-cache\_logs\2026-05-18T15_31_13_990Z-
+10 verbose logfile d:\Doc\HBuilderProjects\ChiHai\.npm-cache\_logs\2026-05-18T15_31_13_990Z-debug-0.log
+11 silly packumentCache heap:4496293888 maxSize:1124073472 maxEntrySize:562036736
+12 silly logfile done cleaning log files
+13 silly idealTree buildDeps
+14 silly fetch manifest react@^18.2.0
+15 silly packumentCache full:https://registry.npmjs.org/react cache-miss
+16 http fetch GET 200 https://registry.npmjs.org/react 3232ms (cache miss)
+17 silly packumentCache full:https://registry.npmjs.org/react set size:undefined disposed:false
+18 silly fetch manifest react-dom@^18.2.0
+19 silly packumentCache full:https://registry.npmjs.org/react-dom cache-miss
+20 http fetch GET 200 https://registry.npmjs.org/react-dom 2546ms (cache miss)
+21 silly packumentCache full:https://registry.npmjs.org/react-dom set size:undefined disposed:false
+22 silly fetch manifest react-router-dom@^6.22.0
+23 silly packumentCache full:https://registry.npmjs.org/react-router-dom cache-miss
+24 http fetch GET 200 https://registry.npmjs.org/react-router-dom 809ms (cache miss)
+25 silly packumentCache full:https://registry.npmjs.org/react-router-dom set size:undefined disposed:false
+26 silly fetch manifest lucide-react@^0.312.0
+27 silly packumentCache full:https://registry.npmjs.org/lucide-react cache-miss
+28 http fetch GET 200 https://registry.npmjs.org/lucide-react 911ms (cache miss)
+29 silly packumentCache full:https://registry.npmjs.org/lucide-react set size:undefined disposed:false
+30 silly fetch manifest @types/react@^18.2.0
+31 silly packumentCache full:https://registry.npmjs.org/@types%2freact cache-miss
+32 http fetch GET 200 https://registry.npmjs.org/@types%2freact 1050ms (cache miss)
+33 silly packumentCache full:https://registry.npmjs.org/@types%2freact set size:undefined disposed:false
+34 silly fetch manifest @types/react-dom@^18.2.0
+35 silly packumentCache full:https://registry.npmjs.org/@types%2freact-dom cache-miss
+36 http fetch GET 200 https://registry.npmjs.org/@types%2freact-dom 468ms (cache miss)
+37 silly packumentCache full:https://registry.npmjs.org/@types%2freact-dom set size:undefined disposed:false
+38 silly fetch manifest @vitejs/plugin-react@^4.2.0
+39 silly packumentCache full:https://registry.npmjs.org/@vitejs%2fplugin-react cache-miss
+40 http fetch GET 200 https://registry.npmjs.org/@vitejs%2fplugin-react 555ms (cache miss)
+41 silly packumentCache full:https://registry.npmjs.org/@vitejs%2fplugin-react set size:undefined disposed:false
+42 silly fetch manifest vite@^6.5.0
+43 silly packumentCache full:https://registry.npmjs.org/vite cache-miss
+44 http fetch GET 200 https://registry.npmjs.org/vite 12526ms (cache miss)
+45 silly packumentCache full:https://registry.npmjs.org/vite set size:undefined disposed:false
+46 silly fetch manifest vite@^4.2.0 || ^5.0.0 || ^6.0.0 || ^7.0.0
+47 silly packumentCache full:https://registry.npmjs.org/vite cache-miss
+48 http fetch GET 200 https://registry.npmjs.org/vite 72ms (cache hit)
+49 silly packumentCache full:https://registry.npmjs.org/vite set size:38838042 disposed:false
+50 verbose stack Error: unable to resolve dependency tree
+50 verbose stack     at #failPeerConflict (C:\Program Files\nodejs\node_global\node_modules\npm\node_modules\@npmcli\arborist\lib\arborist\build-ideal-tree.js:1360:25)
+50 verbose stack     at #loadPeerSet (C:\Program Files\nodejs\node_global\node_modules\npm\node_modules\@npmcli\arborist\lib\arborist\build-ideal-tree.js:1326:33)
+50 verbose stack     at async #buildDepStep (C:\Program Files\nodejs\node_global\node_modules\npm\node_modules\@npmcli\arborist\lib\arborist\build-ideal-tree.js:901:11)
+50 verbose stack     at async Arborist.buildIdealTree (C:\Program Files\nodejs\node_global\node_modules\npm\node_modules\@npmcli\arborist\lib\arborist\build-ideal-tree.js:181:7)
+50 verbose stack     at async Promise.all (index 1)
+50 verbose stack     at async Arborist.reify (C:\Program Files\nodejs\node_global\node_modules\npm\node_modules\@npmcli\arborist\lib\arborist\reify.js:131:5)
+50 verbose stack     at async Install.exec (C:\Program Files\nodejs\node_global\node_modules\npm\lib\commands\install.js:150:5)
+50 verbose stack     at async Npm.exec (C:\Program Files\nodejs\node_global\node_modules\npm\lib\npm.js:207:9)
+50 verbose stack     at async module.exports (C:\Program Files\nodejs\node_global\node_modules\npm\lib\cli\entry.js:74:5)
+51 error code ERESOLVE
+52 error ERESOLVE unable to resolve dependency tree
+53 error
+54 error While resolving: chihai-company-website@1.0.0
+54 error Found: vite@undefined
+54 error node_modules/vite
+54 error   dev vite@"^6.5.0" from the root project
+54 error
+54 error Could not resolve dependency:
+54 error peer vite@"^4.2.0 || ^5.0.0 || ^6.0.0 || ^7.0.0" from @vitejs/plugin-react@4.7.0
+54 error node_modules/@vitejs/plugin-react
+54 error   dev @vitejs/plugin-react@"^4.2.0" from the root project
+54 error
+54 error Fix the upstream dependency conflict, or retry
+54 error this command with --force or --legacy-peer-deps
+54 error to accept an incorrect (and potentially broken) dependency resolution.
+55 error
+55 error
+55 error For a full report see:
+55 error d:\Doc\HBuilderProjects\ChiHai\.npm-cache\_logs\2026-05-18T15_31_13_990Z-eresolve-report.txt
+56 silly unfinished npm timer reify 1779118274408
+57 silly unfinished npm timer reify:loadTrees 1779118274410
+58 silly unfinished npm timer idealTree:buildDeps 1779118274424
+59 silly unfinished npm timer idealTree:#root 1779118274425
+60 verbose cwd D:\Doc\HBuilderProjects\ChiHai
+61 verbose os Windows_NT 10.0.22000
+62 verbose node v24.14.0
+63 verbose npm  v10.8.1
+64 verbose exit 1
+65 verbose code 1
+66 error A complete log of this run can be found in: d:\Doc\HBuilderProjects\ChiHai\.npm-cache\_logs\2026-05-18T15_31_13_990Z-debug-0.log
