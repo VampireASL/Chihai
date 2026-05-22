@@ -1,29 +1,30 @@
+import { Link } from 'react-router-dom';
+
 interface NewsCardProps {
-  id: number;
+  id: string;
   title: string;
   date: string;
-  category: string;
   summary: string;
-  image: string;
+  image?: string;
 }
 
-export default function NewsCard({ title, date, category, summary, image }: NewsCardProps) {
+export default function NewsCard({ id, title, date, summary, image }: NewsCardProps) {
   return (
-    <div className="bg-white rounded-xl overflow-hidden shadow-sm hover:shadow-lg transition-all duration-300 group">
+    <Link
+      to={`/news/${id}`}
+      className="block bg-white rounded-xl overflow-hidden shadow-sm hover:shadow-lg transition-all duration-300 group"
+    >
       <div className="flex flex-col md:flex-row">
-        <div className="md:w-1/2 relative overflow-hidden">
-          <img
-            src={image}
-            alt={title}
-            className="w-full h-48 md:h-full object-cover group-hover:scale-105 transition-transform duration-500"
-          />
-          <div className="absolute top-3 left-3">
-            <span className="px-3 py-1 bg-primary text-white text-xs font-medium rounded-full">
-              {category}
-            </span>
+        {image && (
+          <div className="md:w-1/2 relative overflow-hidden">
+            <img
+              src={image}
+              alt={title}
+              className="w-full h-48 md:h-full object-cover group-hover:scale-105 transition-transform duration-500"
+            />
           </div>
-        </div>
-        <div className="md:w-1/2 p-5 flex flex-col justify-between">
+        )}
+        <div className={`${image ? 'md:w-1/2' : 'w-full'} p-5 flex flex-col justify-between`}>
           <div>
             <h3 className="text-lg font-semibold text-gray-800 mb-2 group-hover:text-primary transition-colors">
               {title}
@@ -35,6 +36,6 @@ export default function NewsCard({ title, date, category, summary, image }: News
           </div>
         </div>
       </div>
-    </div>
+    </Link>
   );
 }

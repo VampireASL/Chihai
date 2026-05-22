@@ -1,4 +1,5 @@
 import ContactForm from '@/components/ContactForm';
+import Amap from '@/components/Amap';
 import { contactInfo } from '@/data/mockData';
 import { MapPin, Phone, Mail, Clock } from 'lucide-react';
 
@@ -56,13 +57,13 @@ export default function Contact() {
               </div>
 
               <div className="mt-8 p-6 bg-primary/5 rounded-xl">
-                <h3 className="font-semibold text-gray-800 mb-4">地图</h3>
-                <div className="w-full h-64 bg-gray-200 rounded-lg flex items-center justify-center">
-                  <div className="text-center text-gray-400">
-                    <MapPin className="w-12 h-12 mx-auto mb-2" />
-                    <p>地图加载中...</p>
-                  </div>
-                </div>
+                <h3 className="font-semibold text-gray-800 mb-4">公司位置</h3>
+                <Amap
+                  address={contactInfo.address}
+                  longitude={117.205709}
+                  latitude={34.221496}
+                  height="256px"
+                />
               </div>
             </div>
 

@@ -1,10 +1,10 @@
 #!/bin/bash
-# ChiHai 企业官网部署脚本
+# 赤海智能装备 - 企业官网部署脚本
 
 set -e
 
 echo "======================================"
-echo "  ChiHai 企业官网部署脚本"
+echo "  赤海智能装备 - 部署脚本"
 echo "======================================"
 
 # 颜色定义
@@ -22,7 +22,7 @@ fi
 
 # 1. 检查并安装 Nginx
 echo ""
-echo -e "${YELLOW}[1/5] 检查 Nginx...${NC}"
+echo -e "${YELLOW}[1/7] 检查 Nginx...${NC}"
 if ! command -v nginx &> /dev/null; then
     echo "正在安装 Nginx..."
     apt-get update
@@ -32,17 +32,43 @@ else
     echo -e "${GREEN}Nginx 已安装${NC}"
 fi
 
-# 2. 创建网站目录
+# 2. 检查并安装 Node.js 和 PM2
 echo ""
-echo -e "${YELLOW}[2/5] 创建网站目录...${NC}"
+echo -e "${YELLOW}[2/7] 检查 Node.js 和 PM2...${NC}"
+if ! command -v node &> /dev/null; then
+    echo "正在安装 Node.js..."
+    curl -fsSL https://deb.nodesource.com/setup_18.x | bash -
+    apt-get install -y nodejs
+    echo -e "${GREEN}Node.js 安装完成${NC}"
+else
+    echo -e "${GREEN}Node.js 已安装${NC}"
+fi
+
+if ! command -v pm2 &> /dev/null; then
+    echo "正在安装 PM2..."
+    npm install -g pm2
+    echo -e "${GREEN}PM2 安装完成${NC}"
+else
+    echo -e "${GREEN}PM2 已安装${NC}"
+fi
+
+# 3. 创建网站目录
+echo ""
+echo -e "${YELLOW}[3/7] 创建网站目录...${NC}"
 mkdir -p /var/www/chihai
 chown -R www-data:www-data /var/www/chihai
 chmod -R 755 /var/www/chihai
-echo -e "${GREEN}目录已创建: /var/www/chihai${NC}"
 
-# 3. 配置 Nginx
+# 创建后端目录
+mkdir -p /var/www/chihai-backend/server/data
+mkdir -p /var/www/chihai-backend/server/uploads
+echo -e "${GREEN}目录已创建${NC}"
+echo "  - /var/www/chihai (前端)"
+echo "  - /var/www/chihai-backend (后端)"
+
+# 4. 配置 Nginx
 echo ""
-echo -e "${YELLOW}[3/5] 配置 Nginx...${NC}"
+echo -e "${YELLOW}[4/7] 配置 Nginx...${NC}"
 if [ -f "/etc/nginx/sites-available/chihai" ]; then
     echo "备份现有配置..."
     cp /etc/nginx/sites-available/chihai /etc/nginx/sites-available/chihai.backup
@@ -73,6 +99,27 @@ server {
         try_files $uri $uri/ /index.html;
     }
 
+    location /api/ {
+        proxy_pass http://localhost:3001/api/;
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection 'upgrade';
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_cache_bypass $http_upgrade;
+        proxy_connect_timeout 300s;
+        proxy_send_timeout 300s;
+        proxy_read_timeout 300s;
+    }
+
+    location /uploads/ {
+        proxy_pass http://localhost:3001/uploads/;
+        proxy_http_version 1.1;
+        proxy_set_header Host $host;
+    }
+
     gzip on;
     gzip_vary on;
     gzip_min_length 1024;
@@ -91,6 +138,10 @@ server {
         expires 1y;
         add_header Cache-Control "public, immutable";
     }
+
+    add_header X-Frame-Options "SAMEORIGIN" always;
+    add_header X-Content-Type-Options "nosniff" always;
+    add_header X-XSS-Protection "1; mode=block" always;
 }
 EOF
 fi
@@ -99,9 +150,9 @@ fi
 ln -sf /etc/nginx/sites-available/chihai /etc/nginx/sites-enabled/
 rm -f /etc/nginx/sites-enabled/default
 
-# 4. 测试 Nginx 配置
+# 5. 测试 Nginx 配置
 echo ""
-echo -e "${YELLOW}[4/5] 测试 Nginx 配置...${NC}"
+echo -e "${YELLOW}[5/7] 测试 Nginx 配置...${NC}"
 if nginx -t; then
     echo -e "${GREEN}Nginx 配置测试通过${NC}"
 else
@@ -109,15 +160,22 @@ else
     exit 1
 fi
 
-# 5. 重启 Nginx
+# 6. 重启 Nginx
 echo ""
-echo -e "${YELLOW}[5/5] 重启 Nginx...${NC}"
+echo -e "${YELLOW}[6/7] 重启 Nginx...${NC}"
 if systemctl restart nginx; then
     echo -e "${GREEN}Nginx 重启成功${NC}"
 else
     echo -e "${RED}Nginx 重启失败${NC}"
     exit 1
 fi
+
+# 7. 设置 PM2 开机自启
+echo ""
+echo -e "${YELLOW}[7/7] 配置 PM2 开机自启...${NC}"
+pm2 startup systemd -u root --hp /root || true
+pm2 save || true
+echo -e "${GREEN}PM2 配置完成${NC}"
 
 # 完成
 echo ""
@@ -126,11 +184,24 @@ echo -e "${GREEN}  部署环境准备完成！${NC}"
 echo "======================================"
 echo ""
 echo "下一步："
-echo "1. 上传 dist 文件夹内容到 /var/www/chihai"
-echo "2. 访问 http://服务器IP 查看网站"
 echo ""
-echo "上传命令（在本地电脑上运行）："
-echo "scp -r dist/* root@服务器IP:/var/www/chihai/"
+echo "1. 上传前端文件（在本地电脑上运行）："
+echo "   scp -r dist/* root@服务器IP:/var/www/chihai/"
 echo ""
-echo "或使用 WinSCP / FileZilla 工具上传"
+echo "2. 上传后端文件（在本地电脑上运行）："
+echo "   scp server/index.js root@服务器IP:/var/www/chihai-backend/server/"
+echo ""
+echo "3. 在服务器上启动后端："
+echo "   cd /var/www/chihai-backend/server"
+echo "   pm2 start index.js --name chihai-backend"
+echo ""
+echo "4. 设置文件权限："
+echo "   sudo chown -R www-data:www-data /var/www/chihai"
+echo "   sudo chmod -R 755 /var/www/chihai"
+echo "   sudo chown -R root:root /var/www/chihai-backend"
+echo "   sudo chmod -R 755 /var/www/chihai-backend"
+echo ""
+echo "5. 访问网站：http://服务器IP"
+echo ""
+echo "或使用 WinSCP / FileZilla 工具上传文件"
 echo ""

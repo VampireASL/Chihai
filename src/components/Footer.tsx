@@ -39,12 +39,12 @@ export default function Footer() {
           <div className="lg:col-span-2">
             <div className="flex items-center space-x-2 mb-4">
               <div className="w-10 h-10 bg-secondary rounded-lg flex items-center justify-center">
-                <span className="text-primary font-bold text-lg">CH</span>
+                <span className="text-primary font-bold text-lg">赤海</span>
               </div>
-              <span className="font-bold text-xl">ChiHai</span>
+              <span className="font-bold text-xl">赤海智能装备</span>
             </div>
             <p className="text-gray-300 mb-6 max-w-sm">
-              致力于通过技术创新，为客户创造价值，推动行业进步。我们专注于前沿技术研发，为全球客户提供高品质的产品和解决方案。
+              专业从事各种自动化设备的研发、设计、制造及电阻焊设备制造的生产企业，引进日本、欧美最先进的技术及生产工艺，集众多经验丰富的高级技术人才，积累二十多年的丰富经验。
             </p>
             <div className="space-y-3">
               <div className="flex items-center space-x-3 text-gray-300">
@@ -87,7 +87,7 @@ export default function Footer() {
 
         <div className="border-t border-gray-700 mt-10 pt-8 flex flex-col md:flex-row justify-between items-center">
           <p className="text-gray-400 text-sm">
-            &copy; {new Date().getFullYear()} ChiHai科技. 保留所有权利.
+            &copy; {new Date().getFullYear()} 赤海智能装备科技(徐州)有限公司. 保留所有权利.
           </p>
           <div className="flex space-x-6 mt-4 md:mt-0">
             <a href="#" className="text-gray-400 hover:text-secondary text-sm transition-colors">

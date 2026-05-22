@@ -10,11 +10,40 @@ export default function About() {
           <div className="text-center mb-12">
             <span className="text-secondary font-medium">关于我们</span>
             <h1 className="text-3xl md:text-4xl font-bold text-gray-800 mt-2">
-              ChiHai科技
+              赤海智能装备科技(徐州)有限公司
             </h1>
-            <p className="text-gray-600 mt-4 max-w-2xl mx-auto">
-              致力于通过技术创新，为客户创造价值，推动行业进步
-            </p>
+          </div>
+          
+          <div className="max-w-4xl mx-auto space-y-8 mb-16">
+            <div className="bg-gray-50 p-8 rounded-xl">
+              <h3 className="text-xl font-semibold text-gray-800 mb-4 flex items-center">
+                <span className="w-1 h-6 bg-secondary rounded mr-3"></span>
+                公司简介
+              </h3>
+              <p className="text-gray-600 leading-relaxed">
+                {companyInfo.introduction}
+              </p>
+            </div>
+            
+            <div className="bg-gray-50 p-8 rounded-xl">
+              <h3 className="text-xl font-semibold text-gray-800 mb-4 flex items-center">
+                <span className="w-1 h-6 bg-secondary rounded mr-3"></span>
+                应用领域
+              </h3>
+              <p className="text-gray-600 leading-relaxed">
+                {companyInfo.applications}
+              </p>
+            </div>
+            
+            <div className="bg-gray-50 p-8 rounded-xl">
+              <h3 className="text-xl font-semibold text-gray-800 mb-4 flex items-center">
+                <span className="w-1 h-6 bg-secondary rounded mr-3"></span>
+                经营理念
+              </h3>
+              <p className="text-gray-600 leading-relaxed">
+                {companyInfo.philosophy}
+              </p>
+            </div>
           </div>
           
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">

@@ -1,0 +1,13 @@
+{
+  "name": "chihai-backend",
+  "version": "1.0.0",
+  "description": "ChiHai 企业官网后端服务",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js",
+    "dev": "node index.js"
+  },
+  "keywords": ["chihai", "express", "backend"],
+  "author": "",
+  "license": "MIT"
+}

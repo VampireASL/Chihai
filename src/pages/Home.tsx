@@ -1,12 +1,87 @@
+import { useState, useEffect } from 'react';
 import Hero from '@/components/Hero';
 import FeatureCard from '@/components/FeatureCard';
 import ProductCard from '@/components/ProductCard';
 import NewsCard from '@/components/NewsCard';
-import { features, products, news } from '@/data/mockData';
+import { features, productsData, newsData } from '@/data/mockData';
 import { Link } from 'react-router-dom';
 import { ArrowRight } from 'lucide-react';
+import { API_URLS, API_BASE_URL } from '@/config/api';
+
+interface Product {
+  id: string;
+  name: string;
+  description: string;
+  image: string;
+  category?: string;
+  patentCount?: number;
+}
+
+interface NewsItem {
+  id: string;
+  title: string;
+  summary: string;
+  image?: string;
+  category?: string;
+  date: string;
+  content?: string;
+  author?: string;
+}
 
 export default function Home() {
+  const [products, setProducts] = useState<Product[]>([]);
+  const [news, setNews] = useState<NewsItem[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      setIsLoading(true);
+      try {
+        const [productsRes, newsRes] = await Promise.all([
+          fetch(API_URLS.products),
+          fetch(API_URLS.news)
+        ]);
+        const productsResult = await productsRes.json();
+        const newsResult = await newsRes.json();
+        
+        if (productsResult.success && productsResult.data.length > 0) {
+          const formattedProducts = productsResult.data.slice(0, 4).map((p: any) => ({
+            ...p,
+            image: p.image ? `${API_BASE_URL}${p.image}` : p.image,
+            patentCount: p.patentCount || 0
+          }));
+          setProducts(formattedProducts);
+        } else {
+          setProducts(productsData.slice(0, 4));
+        }
+        
+        if (newsResult.success && newsResult.data.length > 0) {
+          const formattedNews = newsResult.data.slice(0, 3).map((n: any) => ({
+            ...n,
+            image: n.image ? `${API_BASE_URL}${n.image}` : n.image
+          }));
+          setNews(formattedNews);
+        } else {
+          setNews(newsData.slice(0, 3));
+        }
+      } catch (error) {
+        setProducts(productsData.slice(0, 4));
+        setNews(newsData.slice(0, 3));
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    fetchData();
+  }, []);
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-primary"></div>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen">
       <Hero />
@@ -82,7 +157,7 @@ export default function Home() {
           </div>
           
           <div className="space-y-6">
-            {news.slice(0, 3).map((item) => (
+            {news.map((item) => (
               <NewsCard key={item.id} {...item} />
             ))}
           </div>

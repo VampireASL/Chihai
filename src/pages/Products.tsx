@@ -1,8 +1,75 @@
+import { useState, useEffect } from 'react';
 import ProductCard from '@/components/ProductCard';
-import { products, patents } from '@/data/mockData';
+import { productsData, patentsData } from '@/data/mockData';
 import { FileText, Award } from 'lucide-react';
+import { API_URLS, API_BASE_URL } from '@/config/api';
+
+interface Product {
+  id: string;
+  name: string;
+  description: string;
+  image?: string;
+  features?: string;
+  specs?: string;
+  category?: string;
+  patentCount?: number;
+}
+
+interface Patent {
+  id: string;
+  name: string;
+  patentNumber: string;
+  type: string;
+  date: string;
+}
 
 export default function Products() {
+  const [products, setProducts] = useState<Product[]>([]);
+  const [patents, setPatents] = useState<Patent[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      setIsLoading(true);
+      try {
+        const [productsRes, patentsRes] = await Promise.all([
+          fetch(API_URLS.products),
+          fetch(API_URLS.patents)
+        ]);
+        const productsResult = await productsRes.json();
+        const patentsResult = await patentsRes.json();
+        
+        if (productsResult.success && productsResult.data.length > 0) {
+          const formattedProducts = productsResult.data.map((p: any) => ({
+            ...p,
+            image: p.image ? `${API_BASE_URL}${p.image}` : p.image,
+            patentCount: p.patentCount || 0
+          }));
+          setProducts(formattedProducts);
+        } else {
+          setProducts(productsData);
+        }
+        setPatents(patentsResult.success && patentsResult.data.length > 0 
+          ? (patentsResult.data as Patent[]) 
+          : patentsData);
+      } catch (error) {
+        setProducts(productsData);
+        setPatents(patentsData);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    fetchData();
+  }, []);
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-gray-50 pt-24 flex items-center justify-center">
+        <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-primary"></div>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-gray-50 pt-24">
       <section className="py-16 bg-white">
@@ -54,7 +121,7 @@ export default function Products() {
                 <h3 className="text-lg font-semibold text-gray-800 mb-2">{patent.name}</h3>
                 <div className="flex items-center space-x-2 text-gray-500 text-sm">
                   <FileText className="w-4 h-4" />
-                  <span>{patent.number}</span>
+                  <span>{patent.patentNumber}</span>
                 </div>
                 <p className="text-gray-400 text-sm mt-2">{patent.date}</p>
               </div>

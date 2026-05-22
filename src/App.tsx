@@ -6,6 +6,9 @@ import About from '@/pages/About';
 import Products from '@/pages/Products';
 import News from '@/pages/News';
 import Contact from '@/pages/Contact';
+import NewsDetail from '@/pages/NewsDetail';
+import ProductDetail from '@/pages/ProductDetail';
+import Admin from '@/pages/Admin';
 
 export default function App() {
   return (
@@ -16,8 +19,11 @@ export default function App() {
           <Route path="/" element={<Home />} />
           <Route path="/about" element={<About />} />
           <Route path="/products" element={<Products />} />
+          <Route path="/products/:id" element={<ProductDetail />} />
           <Route path="/news" element={<News />} />
+          <Route path="/news/:id" element={<NewsDetail />} />
           <Route path="/contact" element={<Contact />} />
+          <Route path="/admin" element={<Admin />} />
         </Routes>
       </main>
       <Footer />
