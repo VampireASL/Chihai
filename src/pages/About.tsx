@@ -1,8 +1,45 @@
+import { useState, useEffect } from 'react';
 import Timeline from '@/components/Timeline';
-import { companyInfo } from '@/data/mockData';
+import { companyInfo as defaultCompanyInfo, timeline as defaultTimeline } from '@/data/mockData';
 import { Target, Eye, Heart } from 'lucide-react';
+import { API_URLS } from '@/config/api';
+
+interface CompanyInfo {
+  introduction: string;
+  applications: string;
+  philosophy: string;
+  mission: string;
+  vision: string;
+  values: string[];
+}
+
+interface TimelineItem {
+  id: string;
+  year: string;
+  title: string;
+  description: string;
+}
 
 export default function About() {
+  const [companyInfo, setCompanyInfo] = useState<CompanyInfo>(defaultCompanyInfo);
+  const [timeline, setTimeline] = useState<TimelineItem[]>(defaultTimeline);
+
+  useEffect(() => {
+    const fetchSettings = async () => {
+      try {
+        const res = await fetch(API_URLS.settings);
+        const result = await res.json();
+        if (result.success) {
+          setCompanyInfo(result.data.companyInfo);
+          setTimeline(result.data.timeline);
+        }
+      } catch (error) {
+        // fallback to defaults
+      }
+    };
+    fetchSettings();
+  }, []);
+
   return (
     <div className="min-h-screen bg-gray-50 pt-24">
       <section className="py-16 bg-white">
@@ -13,7 +50,7 @@ export default function About() {
               赤海智能装备科技(徐州)有限公司
             </h1>
           </div>
-          
+
           <div className="max-w-4xl mx-auto space-y-8 mb-16">
             <div className="bg-gray-50 p-8 rounded-xl">
               <h3 className="text-xl font-semibold text-gray-800 mb-4 flex items-center">
@@ -24,7 +61,7 @@ export default function About() {
                 {companyInfo.introduction}
               </p>
             </div>
-            
+
             <div className="bg-gray-50 p-8 rounded-xl">
               <h3 className="text-xl font-semibold text-gray-800 mb-4 flex items-center">
                 <span className="w-1 h-6 bg-secondary rounded mr-3"></span>
@@ -34,7 +71,7 @@ export default function About() {
                 {companyInfo.applications}
               </p>
             </div>
-            
+
             <div className="bg-gray-50 p-8 rounded-xl">
               <h3 className="text-xl font-semibold text-gray-800 mb-4 flex items-center">
                 <span className="w-1 h-6 bg-secondary rounded mr-3"></span>
@@ -45,7 +82,7 @@ export default function About() {
               </p>
             </div>
           </div>
-          
+
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             <div className="text-center p-6">
               <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-4">
@@ -54,7 +91,7 @@ export default function About() {
               <h3 className="text-xl font-semibold text-gray-800 mb-2">企业使命</h3>
               <p className="text-gray-600">{companyInfo.mission}</p>
             </div>
-            
+
             <div className="text-center p-6">
               <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-4">
                 <Eye className="w-8 h-8 text-primary" />
@@ -62,7 +99,7 @@ export default function About() {
               <h3 className="text-xl font-semibold text-gray-800 mb-2">企业愿景</h3>
               <p className="text-gray-600">{companyInfo.vision}</p>
             </div>
-            
+
             <div className="text-center p-6">
               <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-4">
                 <Heart className="w-8 h-8 text-primary" />
@@ -82,7 +119,7 @@ export default function About() {
           </div>
         </div>
       </section>
-      
+
       <section className="py-16 bg-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-12">
@@ -94,11 +131,11 @@ export default function About() {
               回顾我们的成长历程，见证每一个重要时刻
             </p>
           </div>
-          
-          <Timeline />
+
+          <Timeline items={timeline} />
         </div>
       </section>
-      
+
       <section className="py-16 bg-gradient-primary">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">

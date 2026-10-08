@@ -21,6 +21,7 @@ interface Patent {
   patentNumber: string;
   type: string;
   date: string;
+  image?: string;
 }
 
 export default function Products() {
@@ -49,9 +50,17 @@ export default function Products() {
         } else {
           setProducts(productsData);
         }
-        setPatents(patentsResult.success && patentsResult.data.length > 0 
-          ? (patentsResult.data as Patent[]) 
-          : patentsData);
+        if (patentsResult.success && patentsResult.data.length > 0) {
+          const formattedPatents = (patentsResult.data as Patent[]).map((p: any) => ({
+            ...p,
+            image: p.image
+              ? (p.image.startsWith('http') ? p.image : `${API_BASE_URL}${p.image}`)
+              : ''
+          }));
+          setPatents(formattedPatents);
+        } else {
+          setPatents(patentsData);
+        }
       } catch (error) {
         setProducts(productsData);
         setPatents(patentsData);
@@ -108,22 +117,40 @@ export default function Products() {
             {patents.map((patent) => (
               <div
                 key={patent.id}
-                className="bg-white rounded-xl p-6 shadow-sm hover:shadow-lg transition-shadow"
+                className="bg-white rounded-xl overflow-hidden shadow-sm hover:shadow-lg transition-shadow"
               >
-                <div className="flex items-center space-x-3 mb-4">
-                  <div className="w-10 h-10 bg-secondary/10 rounded-lg flex items-center justify-center">
-                    <Award className="w-5 h-5 text-secondary" />
+                <div className="relative h-44 bg-gradient-to-br from-secondary/5 to-primary/5">
+                  {patent.image && (
+                    <img
+                      src={patent.image}
+                      alt={patent.name}
+                      className="absolute inset-0 w-full h-full object-cover z-10"
+                      onError={(e) => {
+                        // 图片加载失败时隐藏，显示占位图标
+                        (e.target as HTMLImageElement).style.display = 'none';
+                      }}
+                    />
+                  )}
+                  <div className="w-full h-full flex items-center justify-center">
+                    <Award className="w-12 h-12 text-secondary/30" />
                   </div>
-                  <span className="px-3 py-1 bg-primary/10 text-primary text-sm font-medium rounded-full">
-                    {patent.type}
-                  </span>
                 </div>
-                <h3 className="text-lg font-semibold text-gray-800 mb-2">{patent.name}</h3>
-                <div className="flex items-center space-x-2 text-gray-500 text-sm">
-                  <FileText className="w-4 h-4" />
-                  <span>{patent.patentNumber}</span>
+                <div className="p-6">
+                  <div className="flex items-center space-x-3 mb-4">
+                    <div className="w-10 h-10 bg-secondary/10 rounded-lg flex items-center justify-center">
+                      <Award className="w-5 h-5 text-secondary" />
+                    </div>
+                    <span className="px-3 py-1 bg-primary/10 text-primary text-sm font-medium rounded-full">
+                      {patent.type}
+                    </span>
+                  </div>
+                  <h3 className="text-lg font-semibold text-gray-800 mb-2">{patent.name}</h3>
+                  <div className="flex items-center space-x-2 text-gray-500 text-sm">
+                    <FileText className="w-4 h-4" />
+                    <span>{patent.patentNumber}</span>
+                  </div>
+                  <p className="text-gray-400 text-sm mt-2">{patent.date}</p>
                 </div>
-                <p className="text-gray-400 text-sm mt-2">{patent.date}</p>
               </div>
             ))}
           </div>

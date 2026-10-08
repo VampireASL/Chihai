@@ -1,7 +1,26 @@
+import { useState, useEffect } from 'react';
 import { MapPin, Phone, Mail, Clock } from 'lucide-react';
-import { contactInfo } from '@/data/mockData';
+import { contactInfo as defaultContactInfo } from '@/data/mockData';
+import { API_URLS } from '@/config/api';
 
-const footerLinks = [
+interface ContactInfo {
+  address: string;
+  phone: string;
+  email: string;
+  workingHours: string;
+}
+
+interface FooterLink {
+  name: string;
+  path: string;
+}
+
+interface FooterLinkSection {
+  title: string;
+  links: FooterLink[];
+}
+
+const defaultFooterLinks: FooterLinkSection[] = [
   {
     title: '产品服务',
     links: [
@@ -32,6 +51,25 @@ const footerLinks = [
 ];
 
 export default function Footer() {
+  const [contactInfo, setContactInfo] = useState<ContactInfo>(defaultContactInfo);
+  const [footerLinks, setFooterLinks] = useState<FooterLinkSection[]>(defaultFooterLinks);
+
+  useEffect(() => {
+    const fetchSettings = async () => {
+      try {
+        const res = await fetch(API_URLS.settings);
+        const result = await res.json();
+        if (result.success) {
+          setContactInfo(result.data.contactInfo);
+          setFooterLinks(result.data.footerLinks || defaultFooterLinks);
+        }
+      } catch (error) {
+        // fallback to defaults
+      }
+    };
+    fetchSettings();
+  }, []);
+
   return (
     <footer className="bg-primary text-white">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">

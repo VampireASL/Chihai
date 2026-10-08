@@ -116,25 +116,52 @@ export const companyInfo = {
 
 export const timeline = [
   {
+    id: 't1',
     year: '2024',
     title: '技术突破',
     description: '获得多项核心技术专利，产品远销海外市场',
   },
   {
+    id: 't2',
     year: '2023',
     title: '快速发展',
     description: '完成A轮融资，公司规模扩大至200人',
   },
   {
+    id: 't3',
     year: '2022',
     title: '产品上线',
     description: '首款核心产品正式发布，获得市场认可',
   },
   {
+    id: 't4',
     year: '2019',
     title: '公司成立',
     description: '赤海智能装备科技(徐州)有限公司正式成立，专注于科技创新',
   },
+];
+
+// 行业客户（首页 logo 展示）
+export interface ClientItem {
+  id: string;
+  name: string;
+  icon: string;
+  logo?: string;
+}
+
+export const clientsData: ClientItem[] = [
+  { id: 'client-1', name: '汽车制造', icon: 'Car' },
+  { id: 'client-2', name: '电梯制造', icon: 'Building2' },
+  { id: 'client-3', name: '家用电器', icon: 'Tv' },
+  { id: 'client-4', name: '低压电器', icon: 'Zap' },
+  { id: 'client-5', name: '金属网片', icon: 'Grid3x3' },
+  { id: 'client-6', name: '机箱机柜', icon: 'Box' },
+  { id: 'client-7', name: '五金制品', icon: 'Wrench' },
+  { id: 'client-8', name: '不锈钢制品', icon: 'Layers' },
+  { id: 'client-9', name: '电器元件', icon: 'Cpu' },
+  { id: 'client-10', name: '铝制品', icon: 'Gem' },
+  { id: 'client-11', name: '航天航空', icon: 'Plane' },
+  { id: 'client-12', name: '更多行业', icon: 'MoreHorizontal' },
 ];
 
 export const newsData = [

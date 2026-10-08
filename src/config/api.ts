@@ -11,4 +11,6 @@ export const API_URLS = {
   submissions: `${API_BASE_URL}/api/submissions`,
   contact: `${API_BASE_URL}/api/contact`,
   health: `${API_BASE_URL}/api/health`,
+  settings: `${API_BASE_URL}/api/settings`,
+  upload: `${API_BASE_URL}/api/upload`,
 };

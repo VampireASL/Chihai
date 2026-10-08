@@ -11,7 +11,12 @@ import {
   X,
   Save,
   Image as ImageIcon,
-  FileText
+  FileText,
+  Settings,
+  Home,
+  Info,
+  Phone,
+  Menu
 } from 'lucide-react';
 import { API_URLS, API_BASE_URL } from '@/config/api';
 
@@ -56,7 +61,81 @@ interface Submission {
   read: boolean;
 }
 
-type TabType = 'products' | 'news' | 'patents' | 'submissions';
+type TabType = 'products' | 'news' | 'patents' | 'submissions' | 'settings';
+type SettingsSubTab = 'hero' | 'homeSections' | 'features' | 'company' | 'contact' | 'timeline' | 'nav' | 'footer';
+
+interface HeroData {
+  title: string;
+  subtitle: string;
+  description: string;
+  ctaText: string;
+  bgImage: string;
+}
+
+interface FeatureItem {
+  id: string;
+  icon: string;
+  title: string;
+  description: string;
+}
+
+interface CompanyInfo {
+  introduction: string;
+  applications: string;
+  philosophy: string;
+  mission: string;
+  vision: string;
+  values: string[];
+}
+
+interface ContactInfo {
+  address: string;
+  phone: string;
+  email: string;
+  workingHours: string;
+}
+
+interface TimelineItem {
+  id: string;
+  year: string;
+  title: string;
+  description: string;
+}
+
+interface NavLinkItem {
+  name: string;
+  path: string;
+}
+
+interface FooterLink {
+  name: string;
+  path: string;
+}
+
+interface FooterLinkSection {
+  title: string;
+  links: FooterLink[];
+}
+
+interface SectionConfig {
+  title: string;
+  subtitle: string;
+  description: string;
+  bgImage?: string;
+}
+
+interface ClientItem {
+  id: string;
+  name: string;
+  icon: string;
+  logo?: string;
+}
+
+interface HomeSections {
+  featuresSection: SectionConfig;
+  productsSection: SectionConfig;
+  clientsSection: SectionConfig;
+}
 
 export default function Admin() {
   const [activeTab, setActiveTab] = useState<TabType>('products');
@@ -73,8 +152,32 @@ export default function Admin() {
   const [message, setMessage] = useState('');
   const [messageType, setMessageType] = useState<'success' | 'error'>('success');
 
+  // 网站设置相关状态
+  const [settingsSubTab, setSettingsSubTab] = useState<SettingsSubTab>('hero');
+  const [, setSiteSettings] = useState<any>(null);
+  const [heroForm, setHeroForm] = useState<HeroData>({ title: '', subtitle: '', description: '', ctaText: '', bgImage: '' });
+  const [homeSectionsForm, setHomeSectionsForm] = useState<HomeSections>({
+    featuresSection: { title: '', subtitle: '', description: '', bgImage: '' },
+    productsSection: { title: '', subtitle: '', description: '', bgImage: '' },
+    clientsSection: { title: '', subtitle: '', description: '', bgImage: '' }
+  });
+  const [clientsList, setClientsList] = useState<ClientItem[]>([]);
+  const [featuresList, setFeaturesList] = useState<FeatureItem[]>([]);
+  const [companyForm, setCompanyForm] = useState<CompanyInfo>({ introduction: '', applications: '', philosophy: '', mission: '', vision: '', values: [] });
+  const [contactForm, setContactForm] = useState<ContactInfo>({ address: '', phone: '', email: '', workingHours: '' });
+  const [timelineList, setTimelineList] = useState<TimelineItem[]>([]);
+  const [navLinksList, setNavLinksList] = useState<NavLinkItem[]>([]);
+  const [footerLinksList, setFooterLinksList] = useState<FooterLinkSection[]>([]);
+  const [heroImagePreview, setHeroImagePreview] = useState<string>('');
+  const [featuresSectionImagePreview, setFeaturesSectionImagePreview] = useState<string>('');
+  const [productsSectionImagePreview, setProductsSectionImagePreview] = useState<string>('');
+
   useEffect(() => {
-    loadData();
+    if (activeTab === 'settings') {
+      loadSettings();
+    } else {
+      loadData();
+    }
   }, [activeTab]);
 
   const loadData = async () => {
@@ -97,6 +200,263 @@ export default function Admin() {
     } finally {
       setIsLoading(false);
     }
+  };
+
+  const loadSettings = async () => {
+    setIsLoading(true);
+    try {
+      const res = await fetch(API_URLS.settings);
+      const result = await res.json();
+      if (result.success) {
+        const data = result.data;
+        setSiteSettings(data);
+        setHeroForm(data.hero || {});
+        setHomeSectionsForm(data.homeSections || {
+          featuresSection: { title: '', subtitle: '', description: '', bgImage: '' },
+          productsSection: { title: '', subtitle: '', description: '', bgImage: '' },
+          clientsSection: { title: '', subtitle: '', description: '', bgImage: '' }
+        });
+        setClientsList(data.clients || []);
+        setFeaturesList(data.features || []);
+        setCompanyForm(data.companyInfo || {});
+        setContactForm(data.contactInfo || {});
+        setTimelineList(data.timeline || []);
+        setNavLinksList(data.navLinks || []);
+        setFooterLinksList(data.footerLinks || []);
+        setHeroImagePreview(data.hero?.bgImage || '');
+        setFeaturesSectionImagePreview(data.homeSections?.featuresSection?.bgImage || '');
+        setProductsSectionImagePreview(data.homeSections?.productsSection?.bgImage || '');
+      }
+    } catch (error) {
+      console.error('加载设置失败:', error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const saveSettings = async (key: string, value: any) => {
+    try {
+      const res = await fetch(API_URLS.settings, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ [key]: value }),
+      });
+      const result = await res.json();
+      if (result.success) {
+        showMessage('保存成功', 'success');
+        setSiteSettings(result.data);
+      } else {
+        showMessage(result.error || '保存失败', 'error');
+      }
+    } catch (error) {
+      showMessage('保存失败', 'error');
+    }
+  };
+
+  const handleHeroImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = (event) => {
+        setHeroImagePreview(event.target?.result as string);
+      };
+      reader.readAsDataURL(file);
+      // 上传文件
+      const uploadForm = new FormData();
+      uploadForm.append('image', file);
+      fetch(API_URLS.upload, { method: 'POST', body: uploadForm })
+        .then(res => res.json())
+        .then(result => {
+          if (result.success) {
+            setHeroForm({ ...heroForm, bgImage: `${API_BASE_URL}${result.data.path}` });
+          }
+        });
+    }
+  };
+
+  const handleSaveHero = () => {
+    saveSettings('hero', heroForm);
+  };
+
+  const handleSectionImageUpload = (section: 'featuresSection' | 'productsSection', file: File) => {
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      if (section === 'featuresSection') {
+        setFeaturesSectionImagePreview(event.target?.result as string);
+      } else {
+        setProductsSectionImagePreview(event.target?.result as string);
+      }
+    };
+    reader.readAsDataURL(file);
+    
+    const uploadForm = new FormData();
+    uploadForm.append('image', file);
+    fetch(API_URLS.upload, { method: 'POST', body: uploadForm })
+      .then(res => res.json())
+      .then(result => {
+        if (result.success) {
+          setHomeSectionsForm({
+            ...homeSectionsForm,
+            [section]: {
+              ...homeSectionsForm[section],
+              bgImage: `${API_BASE_URL}${result.data.path}`
+            }
+          });
+        }
+      });
+  };
+
+  const handleSaveHomeSections = async () => {
+    await saveSettings('homeSections', homeSectionsForm);
+    await saveSettings('clients', clientsList);
+  };
+
+  const handleSaveCompany = () => {
+    saveSettings('companyInfo', companyForm);
+  };
+
+  const handleSaveContact = () => {
+    saveSettings('contactInfo', contactForm);
+  };
+
+  const handleSaveNav = () => {
+    saveSettings('navLinks', navLinksList);
+  };
+
+  const handleSaveFooter = () => {
+    saveSettings('footerLinks', footerLinksList);
+  };
+
+  // Feature 操作
+  const handleAddFeature = () => {
+    const newFeature: FeatureItem = {
+      id: 'feat-' + Date.now(),
+      icon: 'Star',
+      title: '',
+      description: '',
+    };
+    setFeaturesList([...featuresList, newFeature]);
+  };
+
+  const handleUpdateFeature = (index: number, field: keyof FeatureItem, value: string) => {
+    const updated = [...featuresList];
+    updated[index] = { ...updated[index], [field]: value };
+    setFeaturesList(updated);
+  };
+
+  const handleDeleteFeature = (index: number) => {
+    setFeaturesList(featuresList.filter((_, i) => i !== index));
+  };
+
+  const handleSaveFeatures = () => {
+    saveSettings('features', featuresList);
+  };
+
+  // 行业客户操作
+  const handleAddClient = () => {
+    setClientsList([...clientsList, { id: 'client-' + Date.now(), name: '', icon: 'Car' }]);
+  };
+
+  const handleUpdateClient = (index: number, field: keyof ClientItem, value: string) => {
+    const updated = [...clientsList];
+    updated[index] = { ...updated[index], [field]: value };
+    setClientsList(updated);
+  };
+
+  const handleDeleteClient = (index: number) => {
+    setClientsList(clientsList.filter((_, i) => i !== index));
+  };
+
+  // 行业客户 logo 上传
+  const handleClientLogoUpload = (index: number, file: File) => {
+    const uploadForm = new FormData();
+    uploadForm.append('image', file);
+    fetch(API_URLS.upload, { method: 'POST', body: uploadForm })
+      .then(res => res.json())
+      .then(result => {
+        if (result.success) {
+          const updated = [...clientsList];
+          updated[index] = { ...updated[index], logo: `${API_BASE_URL}${result.data.path}` };
+          setClientsList(updated);
+          showMessage('Logo 上传成功，请点击保存', 'success');
+        } else {
+          showMessage(result.error || '上传失败', 'error');
+        }
+      })
+      .catch(() => showMessage('上传失败', 'error'));
+  };
+
+  // Timeline 操作
+  const handleAddTimeline = () => {
+    const newItem: TimelineItem = {
+      id: 'tl-' + Date.now(),
+      year: '',
+      title: '',
+      description: '',
+    };
+    setTimelineList([...timelineList, newItem]);
+  };
+
+  const handleUpdateTimeline = (index: number, field: keyof TimelineItem, value: string) => {
+    const updated = [...timelineList];
+    updated[index] = { ...updated[index], [field]: value };
+    setTimelineList(updated);
+  };
+
+  const handleDeleteTimeline = (index: number) => {
+    setTimelineList(timelineList.filter((_, i) => i !== index));
+  };
+
+  const handleSaveTimeline = () => {
+    saveSettings('timeline', timelineList);
+  };
+
+  // Nav 操作
+  const handleAddNavLink = () => {
+    setNavLinksList([...navLinksList, { name: '', path: '' }]);
+  };
+
+  const handleUpdateNavLink = (index: number, field: keyof NavLinkItem, value: string) => {
+    const updated = [...navLinksList];
+    updated[index] = { ...updated[index], [field]: value };
+    setNavLinksList(updated);
+  };
+
+  const handleDeleteNavLink = (index: number) => {
+    setNavLinksList(navLinksList.filter((_, i) => i !== index));
+  };
+
+  // Footer 操作
+  const handleAddFooterSection = () => {
+    setFooterLinksList([...footerLinksList, { title: '', links: [] }]);
+  };
+
+  const handleUpdateFooterSection = (sectionIndex: number, field: string, value: string) => {
+    const updated = [...footerLinksList];
+    (updated[sectionIndex] as any)[field] = value;
+    setFooterLinksList(updated);
+  };
+
+  const handleDeleteFooterSection = (sectionIndex: number) => {
+    setFooterLinksList(footerLinksList.filter((_, i) => i !== sectionIndex));
+  };
+
+  const handleAddFooterLink = (sectionIndex: number) => {
+    const updated = [...footerLinksList];
+    updated[sectionIndex].links.push({ name: '', path: '' });
+    setFooterLinksList(updated);
+  };
+
+  const handleUpdateFooterLink = (sectionIndex: number, linkIndex: number, field: keyof FooterLink, value: string) => {
+    const updated = [...footerLinksList];
+    updated[sectionIndex].links[linkIndex] = { ...updated[sectionIndex].links[linkIndex], [field]: value };
+    setFooterLinksList(updated);
+  };
+
+  const handleDeleteFooterLink = (sectionIndex: number, linkIndex: number) => {
+    const updated = [...footerLinksList];
+    updated[sectionIndex].links = updated[sectionIndex].links.filter((_, i) => i !== linkIndex);
+    setFooterLinksList(updated);
   };
 
   const handleAdd = () => {
@@ -209,7 +569,703 @@ export default function Admin() {
     { id: 'news' as TabType, label: '新闻管理', icon: Newspaper },
     { id: 'patents' as TabType, label: '专利管理', icon: Award },
     { id: 'submissions' as TabType, label: '表单提交', icon: Mail },
+    { id: 'settings' as TabType, label: '网站设置', icon: Settings },
   ];
+
+  const settingsSubTabs = [
+    { id: 'hero' as SettingsSubTab, label: '首页横幅', icon: Home },
+    { id: 'homeSections' as SettingsSubTab, label: '首页模块', icon: Settings },
+    { id: 'features' as SettingsSubTab, label: '核心优势', icon: Award },
+    { id: 'company' as SettingsSubTab, label: '关于我们', icon: Info },
+    { id: 'contact' as SettingsSubTab, label: '联系信息', icon: Phone },
+    { id: 'timeline' as SettingsSubTab, label: '发展历程', icon: FileText },
+    { id: 'nav' as SettingsSubTab, label: '导航菜单', icon: Menu },
+    { id: 'footer' as SettingsSubTab, label: '页脚链接', icon: Menu },
+  ];
+
+  const renderSettingsContent = () => {
+    if (settingsSubTab === 'hero') {
+      return (
+        <div className="space-y-4">
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">主标题</label>
+            <input
+              type="text"
+              value={heroForm.title}
+              onChange={(e) => setHeroForm({ ...heroForm, title: e.target.value })}
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-secondary"
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">副标题</label>
+            <input
+              type="text"
+              value={heroForm.subtitle}
+              onChange={(e) => setHeroForm({ ...heroForm, subtitle: e.target.value })}
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-secondary"
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">描述</label>
+            <textarea
+              value={heroForm.description}
+              onChange={(e) => setHeroForm({ ...heroForm, description: e.target.value })}
+              rows={3}
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-secondary resize-none"
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">按钮文字</label>
+            <input
+              type="text"
+              value={heroForm.ctaText}
+              onChange={(e) => setHeroForm({ ...heroForm, ctaText: e.target.value })}
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-secondary"
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">背景图片</label>
+            <input
+              type="text"
+              value={heroForm.bgImage}
+              onChange={(e) => setHeroForm({ ...heroForm, bgImage: e.target.value })}
+              placeholder="输入图片URL或上传本地图片"
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-secondary mb-2"
+            />
+            <input
+              type="file"
+              accept="image/*"
+              onChange={handleHeroImageChange}
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg"
+            />
+            {heroImagePreview && (
+              <img src={heroImagePreview} alt="预览" className="mt-2 max-h-40 rounded-lg" />
+            )}
+          </div>
+          <button
+            onClick={handleSaveHero}
+            className="flex items-center space-x-2 px-4 py-2 bg-primary text-white rounded-lg hover:bg-primaryLight"
+          >
+            <Save className="w-4 h-4" />
+            <span>保存</span>
+          </button>
+        </div>
+      );
+    }
+
+    if (settingsSubTab === 'homeSections') {
+      return (
+        <div className="space-y-6">
+          {/* 核心优势模块配置 */}
+          <div className="p-4 border border-gray-200 rounded-lg space-y-4">
+            <h3 className="text-lg font-semibold text-gray-800">核心优势模块</h3>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">模块标题</label>
+              <input
+                type="text"
+                value={homeSectionsForm.featuresSection.title}
+                onChange={(e) => setHomeSectionsForm({
+                  ...homeSectionsForm,
+                  featuresSection: { ...homeSectionsForm.featuresSection, title: e.target.value }
+                })}
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-secondary"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">副标题</label>
+              <input
+                type="text"
+                value={homeSectionsForm.featuresSection.subtitle}
+                onChange={(e) => setHomeSectionsForm({
+                  ...homeSectionsForm,
+                  featuresSection: { ...homeSectionsForm.featuresSection, subtitle: e.target.value }
+                })}
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-secondary"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">描述</label>
+              <textarea
+                value={homeSectionsForm.featuresSection.description}
+                onChange={(e) => setHomeSectionsForm({
+                  ...homeSectionsForm,
+                  featuresSection: { ...homeSectionsForm.featuresSection, description: e.target.value }
+                })}
+                rows={2}
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-secondary resize-none"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">背景图片</label>
+              <input
+                type="text"
+                value={homeSectionsForm.featuresSection.bgImage}
+                onChange={(e) => setHomeSectionsForm({
+                  ...homeSectionsForm,
+                  featuresSection: { ...homeSectionsForm.featuresSection, bgImage: e.target.value }
+                })}
+                placeholder="输入图片URL或上传本地图片"
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-secondary mb-2"
+              />
+              <input
+                type="file"
+                accept="image/*"
+                onChange={(e) => {
+                  const file = e.target.files?.[0];
+                  if (file) handleSectionImageUpload('featuresSection', file);
+                }}
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg"
+              />
+              {featuresSectionImagePreview && (
+                <img src={featuresSectionImagePreview} alt="预览" className="mt-2 max-h-40 rounded-lg" />
+              )}
+            </div>
+          </div>
+
+          {/* 核心产品模块配置 */}
+          <div className="p-4 border border-gray-200 rounded-lg space-y-4">
+            <h3 className="text-lg font-semibold text-gray-800">核心产品模块</h3>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">模块标题</label>
+              <input
+                type="text"
+                value={homeSectionsForm.productsSection.title}
+                onChange={(e) => setHomeSectionsForm({
+                  ...homeSectionsForm,
+                  productsSection: { ...homeSectionsForm.productsSection, title: e.target.value }
+                })}
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-secondary"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">副标题</label>
+              <input
+                type="text"
+                value={homeSectionsForm.productsSection.subtitle}
+                onChange={(e) => setHomeSectionsForm({
+                  ...homeSectionsForm,
+                  productsSection: { ...homeSectionsForm.productsSection, subtitle: e.target.value }
+                })}
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-secondary"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">描述</label>
+              <textarea
+                value={homeSectionsForm.productsSection.description}
+                onChange={(e) => setHomeSectionsForm({
+                  ...homeSectionsForm,
+                  productsSection: { ...homeSectionsForm.productsSection, description: e.target.value }
+                })}
+                rows={2}
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-secondary resize-none"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">背景图片</label>
+              <input
+                type="text"
+                value={homeSectionsForm.productsSection.bgImage}
+                onChange={(e) => setHomeSectionsForm({
+                  ...homeSectionsForm,
+                  productsSection: { ...homeSectionsForm.productsSection, bgImage: e.target.value }
+                })}
+                placeholder="输入图片URL或上传本地图片"
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-secondary mb-2"
+              />
+              <input
+                type="file"
+                accept="image/*"
+                onChange={(e) => {
+                  const file = e.target.files?.[0];
+                  if (file) handleSectionImageUpload('productsSection', file);
+                }}
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg"
+              />
+              {productsSectionImagePreview && (
+                <img src={productsSectionImagePreview} alt="预览" className="mt-2 max-h-40 rounded-lg" />
+              )}
+            </div>
+          </div>
+
+          {/* 行业客户模块配置 */}
+          <div className="p-4 border border-gray-200 rounded-lg space-y-4">
+            <h3 className="text-lg font-semibold text-gray-800">行业客户模块</h3>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">模块标题</label>
+              <input
+                type="text"
+                value={homeSectionsForm.clientsSection.title}
+                onChange={(e) => setHomeSectionsForm({
+                  ...homeSectionsForm,
+                  clientsSection: { ...homeSectionsForm.clientsSection, title: e.target.value }
+                })}
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-secondary"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">副标题</label>
+              <input
+                type="text"
+                value={homeSectionsForm.clientsSection.subtitle}
+                onChange={(e) => setHomeSectionsForm({
+                  ...homeSectionsForm,
+                  clientsSection: { ...homeSectionsForm.clientsSection, subtitle: e.target.value }
+                })}
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-secondary"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">描述</label>
+              <textarea
+                value={homeSectionsForm.clientsSection.description}
+                onChange={(e) => setHomeSectionsForm({
+                  ...homeSectionsForm,
+                  clientsSection: { ...homeSectionsForm.clientsSection, description: e.target.value }
+                })}
+                rows={2}
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-secondary resize-none"
+              />
+            </div>
+
+            <div className="space-y-3">
+              <label className="block text-sm font-medium text-gray-700">行业客户列表</label>
+              {clientsList.map((client, index) => (
+                <div key={client.id} className="flex items-center space-x-2">
+                  <div className="w-12 h-12 shrink-0 border border-gray-200 rounded-lg flex items-center justify-center overflow-hidden bg-white">
+                    {client.logo ? (
+                      <img src={client.logo} alt="logo" className="w-full h-full object-contain" />
+                    ) : (
+                      <ImageIcon className="w-4 h-4 text-gray-300" />
+                    )}
+                  </div>
+                  <input
+                    type="text"
+                    value={client.name}
+                    onChange={(e) => handleUpdateClient(index, 'name', e.target.value)}
+                    placeholder="行业名称，如: 汽车制造"
+                    className="flex-1 min-w-0 px-3 py-2 border border-gray-300 rounded-lg text-sm"
+                  />
+                  <label className="shrink-0 p-2 border border-gray-300 rounded-lg cursor-pointer hover:bg-gray-50" title="上传 logo">
+                    <ImageIcon className="w-4 h-4 text-gray-600" />
+                    <input
+                      type="file"
+                      accept="image/*"
+                      className="hidden"
+                      onChange={(e) => {
+                        const file = e.target.files?.[0];
+                        if (file) handleClientLogoUpload(index, file);
+                        e.target.value = '';
+                      }}
+                    />
+                  </label>
+                  <button
+                    onClick={() => handleDeleteClient(index)}
+                    className="p-2 text-red-600 hover:bg-red-50 rounded shrink-0"
+                  >
+                    <Trash2 className="w-4 h-4" />
+                  </button>
+                </div>
+              ))}
+              <button
+                onClick={handleAddClient}
+                className="flex items-center space-x-2 px-4 py-2 border border-primary text-primary rounded-lg hover:bg-primary/5"
+              >
+                <Plus className="w-4 h-4" />
+                <span>添加行业客户</span>
+              </button>
+              <p className="text-xs text-gray-400">
+                可上传客户 logo 图片；未上传时首页将按图标名显示占位图标（Car, Building2, Tv, Zap, Grid3x3, Box, Wrench, Layers, Cpu, Gem, Plane, MoreHorizontal）。上传或修改后请点击下方保存按钮。
+              </p>
+            </div>
+          </div>
+
+          <button
+            onClick={handleSaveHomeSections}
+            className="flex items-center space-x-2 px-4 py-2 bg-primary text-white rounded-lg hover:bg-primaryLight"
+          >
+            <Save className="w-4 h-4" />
+            <span>保存所有模块配置</span>
+          </button>
+        </div>
+      );
+    }
+
+    if (settingsSubTab === 'features') {
+      return (
+        <div className="space-y-4">
+          {featuresList.map((feature, index) => (
+            <div key={feature.id} className="p-4 border border-gray-200 rounded-lg space-y-3">
+              <div className="flex items-center justify-between">
+                <span className="text-sm font-medium text-gray-500">优势 {index + 1}</span>
+                <button
+                  onClick={() => handleDeleteFeature(index)}
+                  className="p-1 text-red-600 hover:bg-red-50 rounded"
+                >
+                  <Trash2 className="w-4 h-4" />
+                </button>
+              </div>
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-sm text-gray-600 mb-1">图标名称</label>
+                  <input
+                    type="text"
+                    value={feature.icon}
+                    onChange={(e) => handleUpdateFeature(index, 'icon', e.target.value)}
+                    placeholder="如: Lightbulb, Shield, Users, Award"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm text-gray-600 mb-1">标题</label>
+                  <input
+                    type="text"
+                    value={feature.title}
+                    onChange={(e) => handleUpdateFeature(index, 'title', e.target.value)}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm"
+                  />
+                </div>
+              </div>
+              <div>
+                <label className="block text-sm text-gray-600 mb-1">描述</label>
+                <textarea
+                  value={feature.description}
+                  onChange={(e) => handleUpdateFeature(index, 'description', e.target.value)}
+                  rows={2}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm resize-none"
+                />
+              </div>
+            </div>
+          ))}
+          <div className="flex space-x-3">
+            <button
+              onClick={handleAddFeature}
+              className="flex items-center space-x-2 px-4 py-2 border border-primary text-primary rounded-lg hover:bg-primary/5"
+            >
+              <Plus className="w-4 h-4" />
+              <span>添加优势</span>
+            </button>
+            <button
+              onClick={handleSaveFeatures}
+              className="flex items-center space-x-2 px-4 py-2 bg-primary text-white rounded-lg hover:bg-primaryLight"
+            >
+              <Save className="w-4 h-4" />
+              <span>保存</span>
+            </button>
+          </div>
+        </div>
+      );
+    }
+
+    if (settingsSubTab === 'company') {
+      return (
+        <div className="space-y-4">
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">公司简介</label>
+            <textarea
+              value={companyForm.introduction}
+              onChange={(e) => setCompanyForm({ ...companyForm, introduction: e.target.value })}
+              rows={4}
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-secondary resize-none"
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">应用领域</label>
+            <textarea
+              value={companyForm.applications}
+              onChange={(e) => setCompanyForm({ ...companyForm, applications: e.target.value })}
+              rows={3}
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-secondary resize-none"
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">经营理念</label>
+            <textarea
+              value={companyForm.philosophy}
+              onChange={(e) => setCompanyForm({ ...companyForm, philosophy: e.target.value })}
+              rows={3}
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-secondary resize-none"
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">企业使命</label>
+            <input
+              type="text"
+              value={companyForm.mission}
+              onChange={(e) => setCompanyForm({ ...companyForm, mission: e.target.value })}
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-secondary"
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">企业愿景</label>
+            <input
+              type="text"
+              value={companyForm.vision}
+              onChange={(e) => setCompanyForm({ ...companyForm, vision: e.target.value })}
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-secondary"
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">核心价值观（逗号分隔）</label>
+            <input
+              type="text"
+              value={companyForm.values.join(', ')}
+              onChange={(e) => setCompanyForm({ ...companyForm, values: e.target.value.split(',').map(v => v.trim()).filter(Boolean) })}
+              placeholder="如: 创新, 诚信, 责任, 共赢"
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-secondary"
+            />
+          </div>
+          <button
+            onClick={handleSaveCompany}
+            className="flex items-center space-x-2 px-4 py-2 bg-primary text-white rounded-lg hover:bg-primaryLight"
+          >
+            <Save className="w-4 h-4" />
+            <span>保存</span>
+          </button>
+        </div>
+      );
+    }
+
+    if (settingsSubTab === 'contact') {
+      return (
+        <div className="space-y-4">
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">公司地址</label>
+            <input
+              type="text"
+              value={contactForm.address}
+              onChange={(e) => setContactForm({ ...contactForm, address: e.target.value })}
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-secondary"
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">联系电话</label>
+            <input
+              type="text"
+              value={contactForm.phone}
+              onChange={(e) => setContactForm({ ...contactForm, phone: e.target.value })}
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-secondary"
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">电子邮箱</label>
+            <input
+              type="email"
+              value={contactForm.email}
+              onChange={(e) => setContactForm({ ...contactForm, email: e.target.value })}
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-secondary"
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">工作时间</label>
+            <input
+              type="text"
+              value={contactForm.workingHours}
+              onChange={(e) => setContactForm({ ...contactForm, workingHours: e.target.value })}
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-secondary"
+            />
+          </div>
+          <button
+            onClick={handleSaveContact}
+            className="flex items-center space-x-2 px-4 py-2 bg-primary text-white rounded-lg hover:bg-primaryLight"
+          >
+            <Save className="w-4 h-4" />
+            <span>保存</span>
+          </button>
+        </div>
+      );
+    }
+
+    if (settingsSubTab === 'timeline') {
+      return (
+        <div className="space-y-4">
+          {timelineList.map((item, index) => (
+            <div key={item.id} className="p-4 border border-gray-200 rounded-lg space-y-3">
+              <div className="flex items-center justify-between">
+                <span className="text-sm font-medium text-gray-500">里程碑 {index + 1}</span>
+                <button
+                  onClick={() => handleDeleteTimeline(index)}
+                  className="p-1 text-red-600 hover:bg-red-50 rounded"
+                >
+                  <Trash2 className="w-4 h-4" />
+                </button>
+              </div>
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-sm text-gray-600 mb-1">年份</label>
+                  <input
+                    type="text"
+                    value={item.year}
+                    onChange={(e) => handleUpdateTimeline(index, 'year', e.target.value)}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm text-gray-600 mb-1">标题</label>
+                  <input
+                    type="text"
+                    value={item.title}
+                    onChange={(e) => handleUpdateTimeline(index, 'title', e.target.value)}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm"
+                  />
+                </div>
+              </div>
+              <div>
+                <label className="block text-sm text-gray-600 mb-1">描述</label>
+                <textarea
+                  value={item.description}
+                  onChange={(e) => handleUpdateTimeline(index, 'description', e.target.value)}
+                  rows={2}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm resize-none"
+                />
+              </div>
+            </div>
+          ))}
+          <div className="flex space-x-3">
+            <button
+              onClick={handleAddTimeline}
+              className="flex items-center space-x-2 px-4 py-2 border border-primary text-primary rounded-lg hover:bg-primary/5"
+            >
+              <Plus className="w-4 h-4" />
+              <span>添加里程碑</span>
+            </button>
+            <button
+              onClick={handleSaveTimeline}
+              className="flex items-center space-x-2 px-4 py-2 bg-primary text-white rounded-lg hover:bg-primaryLight"
+            >
+              <Save className="w-4 h-4" />
+              <span>保存</span>
+            </button>
+          </div>
+        </div>
+      );
+    }
+
+    if (settingsSubTab === 'nav') {
+      return (
+        <div className="space-y-4">
+          {navLinksList.map((link, index) => (
+            <div key={index} className="flex items-center gap-3 p-3 border border-gray-200 rounded-lg">
+              <div className="flex-1 grid grid-cols-2 gap-3">
+                <input
+                  type="text"
+                  value={link.name}
+                  onChange={(e) => handleUpdateNavLink(index, 'name', e.target.value)}
+                  placeholder="名称"
+                  className="px-3 py-2 border border-gray-300 rounded-lg text-sm"
+                />
+                <input
+                  type="text"
+                  value={link.path}
+                  onChange={(e) => handleUpdateNavLink(index, 'path', e.target.value)}
+                  placeholder="路径，如 /about"
+                  className="px-3 py-2 border border-gray-300 rounded-lg text-sm"
+                />
+              </div>
+              <button
+                onClick={() => handleDeleteNavLink(index)}
+                className="p-2 text-red-600 hover:bg-red-50 rounded"
+              >
+                <Trash2 className="w-4 h-4" />
+              </button>
+            </div>
+          ))}
+          <div className="flex space-x-3">
+            <button
+              onClick={handleAddNavLink}
+              className="flex items-center space-x-2 px-4 py-2 border border-primary text-primary rounded-lg hover:bg-primary/5"
+            >
+              <Plus className="w-4 h-4" />
+              <span>添加链接</span>
+            </button>
+            <button
+              onClick={handleSaveNav}
+              className="flex items-center space-x-2 px-4 py-2 bg-primary text-white rounded-lg hover:bg-primaryLight"
+            >
+              <Save className="w-4 h-4" />
+              <span>保存</span>
+            </button>
+          </div>
+        </div>
+      );
+    }
+
+    if (settingsSubTab === 'footer') {
+      return (
+        <div className="space-y-6">
+          {footerLinksList.map((section, sectionIndex) => (
+            <div key={sectionIndex} className="p-4 border border-gray-200 rounded-lg space-y-3">
+              <div className="flex items-center justify-between">
+                <input
+                  type="text"
+                  value={section.title}
+                  onChange={(e) => handleUpdateFooterSection(sectionIndex, 'title', e.target.value)}
+                  placeholder="分区标题"
+                  className="flex-1 px-3 py-2 border border-gray-300 rounded-lg text-sm font-medium mr-3"
+                />
+                <button
+                  onClick={() => handleDeleteFooterSection(sectionIndex)}
+                  className="p-2 text-red-600 hover:bg-red-50 rounded"
+                >
+                  <Trash2 className="w-4 h-4" />
+                </button>
+              </div>
+              <div className="space-y-2 ml-4">
+                {section.links.map((link, linkIndex) => (
+                  <div key={linkIndex} className="flex items-center gap-2">
+                    <input
+                      type="text"
+                      value={link.name}
+                      onChange={(e) => handleUpdateFooterLink(sectionIndex, linkIndex, 'name', e.target.value)}
+                      placeholder="链接名称"
+                      className="flex-1 px-3 py-1.5 border border-gray-300 rounded-lg text-sm"
+                    />
+                    <input
+                      type="text"
+                      value={link.path}
+                      onChange={(e) => handleUpdateFooterLink(sectionIndex, linkIndex, 'path', e.target.value)}
+                      placeholder="路径"
+                      className="flex-1 px-3 py-1.5 border border-gray-300 rounded-lg text-sm"
+                    />
+                    <button
+                      onClick={() => handleDeleteFooterLink(sectionIndex, linkIndex)}
+                      className="p-1 text-red-600 hover:bg-red-50 rounded"
+                    >
+                      <Trash2 className="w-3 h-3" />
+                    </button>
+                  </div>
+                ))}
+                <button
+                  onClick={() => handleAddFooterLink(sectionIndex)}
+                  className="text-sm text-primary hover:underline"
+                >
+                  + 添加链接
+                </button>
+              </div>
+            </div>
+          ))}
+          <div className="flex space-x-3">
+            <button
+              onClick={handleAddFooterSection}
+              className="flex items-center space-x-2 px-4 py-2 border border-primary text-primary rounded-lg hover:bg-primary/5"
+            >
+              <Plus className="w-4 h-4" />
+              <span>添加分区</span>
+            </button>
+            <button
+              onClick={handleSaveFooter}
+              className="flex items-center space-x-2 px-4 py-2 bg-primary text-white rounded-lg hover:bg-primaryLight"
+            >
+              <Save className="w-4 h-4" />
+              <span>保存</span>
+            </button>
+          </div>
+        </div>
+      );
+    }
+
+    return null;
+  };
 
   const renderContent = () => {
     if (isLoading) {
@@ -433,6 +1489,33 @@ export default function Admin() {
       );
     }
 
+    if (activeTab === 'settings') {
+      return (
+        <div>
+          <div className="flex border-b border-gray-200 mb-6 overflow-x-auto">
+            {settingsSubTabs.map(subTab => {
+              const Icon = subTab.icon;
+              return (
+                <button
+                  key={subTab.id}
+                  onClick={() => setSettingsSubTab(subTab.id)}
+                  className={`flex items-center space-x-2 px-4 py-3 font-medium whitespace-nowrap transition-colors ${
+                    settingsSubTab === subTab.id
+                      ? 'text-primary border-b-2 border-primary'
+                      : 'text-gray-500 hover:text-gray-700'
+                  }`}
+                >
+                  <Icon className="w-4 h-4" />
+                  <span className="text-sm">{subTab.label}</span>
+                </button>
+              );
+            })}
+          </div>
+          {renderSettingsContent()}
+        </div>
+      );
+    }
+
     return null;
   };
 
@@ -442,9 +1525,9 @@ export default function Admin() {
         <div className="flex items-center justify-between mb-8">
           <div>
             <h1 className="text-2xl md:text-3xl font-bold text-gray-800">管理后台</h1>
-            <p className="text-gray-600 mt-2">管理产品、新闻、专利和表单提交</p>
+            <p className="text-gray-600 mt-2">管理产品、新闻、专利、表单提交和网站设置</p>
           </div>
-          {activeTab !== 'submissions' && (
+          {activeTab !== 'submissions' && activeTab !== 'settings' && (
             <button
               onClick={handleAdd}
               className="flex items-center space-x-2 px-4 py-2 bg-primary text-white rounded-lg hover:bg-primaryLight transition-colors"
@@ -638,6 +1721,19 @@ export default function Admin() {
                       required
                       className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-secondary"
                     />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">专利图片</label>
+                    <input
+                      type="file"
+                      name="image"
+                      accept="image/*"
+                      onChange={handleImageChange}
+                      className="w-full px-4 py-2 border border-gray-300 rounded-lg"
+                    />
+                    {imagePreview && (
+                      <img src={imagePreview} alt="预览" className="mt-2 max-h-40 rounded-lg" />
+                    )}
                   </div>
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">专利号 *</label>

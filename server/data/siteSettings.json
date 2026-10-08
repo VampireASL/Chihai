@@ -1,0 +1,165 @@
+{
+  "hero": {
+    "title": "创新驱动未来",
+    "description": "专业从事自动化设备的研发、设计、制造及电阻焊设备制造，引进日本欧美先进技术，积累二十多年丰富经验",
+    "bgImage": "https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=modern%20technology%20corporate%20building%20with%20glass%20facade%20at%20sunset%20professional%20architecture&image_size=landscape_16_9",
+    "ctaText": "了解更多",
+    "subtitle": "赤海智能装备 - 引领行业变革，创造卓越价值"
+  },
+  "features": [
+    {
+      "id": "1",
+      "icon": "Lightbulb",
+      "title": "创新研发",
+      "description": "持续投入研发，保持技术领先，推动行业创新发展"
+    },
+    {
+      "id": "2",
+      "icon": "Shield",
+      "title": "品质保障",
+      "description": "严格的质量控制体系，确保产品品质始终如一"
+    },
+    {
+      "id": "3",
+      "icon": "Users",
+      "title": "客户至上",
+      "description": "以客户需求为导向，提供优质的服务和解决方案"
+    },
+    {
+      "id": "4",
+      "icon": "Award",
+      "title": "行业领先",
+      "description": "荣获多项行业认证和荣誉，树立行业标杆"
+    }
+  ],
+  "homeSections": {
+    "featuresSection": {
+      "title": "核心优势",
+      "subtitle": "为什么选择我们",
+      "description": "我们致力于提供卓越的产品和服务，为客户创造更大价值",
+      "bgImage": ""
+    },
+    "productsSection": {
+      "title": "核心产品",
+      "subtitle": "产品中心",
+      "description": "创新技术驱动，打造高品质产品",
+      "bgImage": ""
+    },
+    "newsSection": {
+      "title": "最新资讯",
+      "subtitle": "新闻动态",
+      "description": "关注我们的最新动态和行业资讯",
+      "bgImage": ""
+    },
+    "clientsSection": {
+      "title": "行业客户",
+      "subtitle": "合作伙伴",
+      "description": "我们的产品广泛应用于以下行业领域，与众多优质客户建立了长期稳定的合作关系",
+      "bgImage": ""
+    }
+  },
+  "clients": [
+    {
+      "id": "client-1",
+      "name": "????",
+      "icon": "Car",
+      "logo": "http://localhost:3001/uploads/1790495842268-5ov6av.jpg"
+    }
+  ],
+  "companyInfo": {
+    "introduction": "赤海智能装备科技（徐州）有限公司专业从事各种自动化设备的研发、设计、制造及电阻焊设备制造的生产企业，引进日本，欧美最先进的技术及生产工艺，集众多经验丰富的高级技术人才，积累二十多年的丰富经验，为智能制造奠定坚实基础，大步迈向智慧制造的创新领域。",
+    "applications": "公司产品被广泛应用于汽车制造行业、电梯制造行业、家用电器、低压电器、金属网片、机箱机柜、五金制品、不锈钢制品、电器元件、铝制品、航天航空等领域。",
+    "philosophy": "社会的发展、市场的需求造就了上海赤海公司的茁壮成长，新瞻公司将一如既往地秉承\"诚信为本，创新为魂\"的理念，洞悉科技前瞻，专注行业应用，为客户和社会创造价值。",
+    "mission": "致力于通过技术创新，为客户创造价值，推动行业进步",
+    "vision": "成为全球领先的科技创新企业",
+    "values": [
+      "创新",
+      "诚信",
+      "责任",
+      "共赢"
+    ]
+  },
+  "contactInfo": {
+    "address": "徐州经济技术开发区大庙街道办事处文化路1号501室",
+    "phone": "0516-83358899",
+    "email": "contact@chihai.com",
+    "workingHours": "周一至周五 9:00-18:00"
+  },
+  "timeline": [
+    {
+      "title": "技术突破",
+      "description": "获得多项核心技术专利，产品远销海外市场",
+      "id": "t1",
+      "year": "2024"
+    },
+    {
+      "title": "快速发展",
+      "description": "完成A轮融资，公司规模扩大至200人",
+      "id": "t2",
+      "year": "2023"
+    },
+    {
+      "title": "产品上线",
+      "description": "首款核心产品正式发布，获得市场认可",
+      "id": "t3",
+      "year": "2022"
+    },
+    {
+      "title": "公司成立",
+      "description": "赤海智能装备科技(徐州)有限公司正式成立，专注于科技创新",
+      "id": "t4",
+      "year": "2019"
+    }
+  ],
+  "navLinks": [
+    {
+      "name": "首页",
+      "path": "/"
+    },
+    {
+      "name": "关于我们",
+      "path": "/about"
+    },
+    {
+      "name": "产品专利",
+      "path": "/products"
+    },
+    {
+      "name": "新闻中心",
+      "path": "/news"
+    },
+    {
+      "name": "联系我们",
+      "path": "/contact"
+    }
+  ],
+  "footerLinks": [
+    {
+      "links": [
+        "System.Collections.Hashtable",
+        "System.Collections.Hashtable",
+        "System.Collections.Hashtable",
+        "System.Collections.Hashtable"
+      ],
+      "title": "产品服务"
+    },
+    {
+      "links": [
+        "System.Collections.Hashtable",
+        "System.Collections.Hashtable",
+        "System.Collections.Hashtable",
+        "System.Collections.Hashtable"
+      ],
+      "title": "关于我们"
+    },
+    {
+      "links": [
+        "System.Collections.Hashtable",
+        "System.Collections.Hashtable",
+        "System.Collections.Hashtable",
+        "System.Collections.Hashtable"
+      ],
+      "title": "支持"
+    }
+  ]
+}

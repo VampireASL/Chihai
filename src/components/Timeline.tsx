@@ -1,14 +1,23 @@
-import { timeline } from '@/data/mockData';
+interface TimelineItem {
+  id: string;
+  year: string;
+  title: string;
+  description: string;
+}
 
-export default function Timeline() {
+interface TimelineProps {
+  items?: TimelineItem[];
+}
+
+export default function Timeline({ items = [] }: TimelineProps) {
   return (
     <div className="relative">
       <div className="absolute left-6 md:left-1/2 top-0 bottom-0 w-px bg-gray-200" />
       
       <div className="space-y-8">
-        {timeline.map((item, index) => (
+        {items.map((item, index) => (
           <div
-            key={item.year}
+            key={item.id}
             className={`relative flex flex-col md:flex-row ${
               index % 2 === 0 ? 'md:flex-row' : 'md:flex-row-reverse'
             }`}

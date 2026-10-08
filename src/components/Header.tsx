@@ -1,8 +1,14 @@
 import { useState, useEffect } from 'react';
 import { Menu, X } from 'lucide-react';
 import { NavLink } from 'react-router-dom';
+import { API_URLS } from '@/config/api';
 
-const navLinks = [
+interface NavLinkItem {
+  name: string;
+  path: string;
+}
+
+const defaultNavLinks: NavLinkItem[] = [
   { name: '首页', path: '/' },
   { name: '关于我们', path: '/about' },
   { name: '产品专利', path: '/products' },
@@ -13,6 +19,7 @@ const navLinks = [
 export default function Header() {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [navLinks, setNavLinks] = useState<NavLinkItem[]>(defaultNavLinks);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -20,6 +27,21 @@ export default function Header() {
     };
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
+
+  useEffect(() => {
+    const fetchSettings = async () => {
+      try {
+        const res = await fetch(API_URLS.settings);
+        const result = await res.json();
+        if (result.success && result.data.navLinks) {
+          setNavLinks(result.data.navLinks);
+        }
+      } catch (error) {
+        // fallback to defaults
+      }
+    };
+    fetchSettings();
   }, []);
 
   return (

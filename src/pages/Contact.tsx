@@ -1,32 +1,58 @@
+import { useState, useEffect } from 'react';
 import ContactForm from '@/components/ContactForm';
 import Amap from '@/components/Amap';
-import { contactInfo } from '@/data/mockData';
+import { contactInfo as defaultContactInfo } from '@/data/mockData';
 import { MapPin, Phone, Mail, Clock } from 'lucide-react';
+import { API_URLS } from '@/config/api';
 
-const contactMethods = [
-  {
-    icon: MapPin,
-    title: '公司地址',
-    content: contactInfo.address,
-  },
-  {
-    icon: Phone,
-    title: '联系电话',
-    content: contactInfo.phone,
-  },
-  {
-    icon: Mail,
-    title: '电子邮箱',
-    content: contactInfo.email,
-  },
-  {
-    icon: Clock,
-    title: '工作时间',
-    content: contactInfo.workingHours,
-  },
-];
+interface ContactInfo {
+  address: string;
+  phone: string;
+  email: string;
+  workingHours: string;
+}
 
 export default function Contact() {
+  const [contactInfo, setContactInfo] = useState<ContactInfo>(defaultContactInfo);
+
+  useEffect(() => {
+    const fetchSettings = async () => {
+      try {
+        const res = await fetch(API_URLS.settings);
+        const result = await res.json();
+        if (result.success) {
+          setContactInfo(result.data.contactInfo);
+        }
+      } catch (error) {
+        // fallback to defaults
+      }
+    };
+    fetchSettings();
+  }, []);
+
+  const contactMethods = [
+    {
+      icon: MapPin,
+      title: '公司地址',
+      content: contactInfo.address,
+    },
+    {
+      icon: Phone,
+      title: '联系电话',
+      content: contactInfo.phone,
+    },
+    {
+      icon: Mail,
+      title: '电子邮箱',
+      content: contactInfo.email,
+    },
+    {
+      icon: Clock,
+      title: '工作时间',
+      content: contactInfo.workingHours,
+    },
+  ];
+
   return (
     <div className="min-h-screen bg-gray-50 pt-24">
       <section className="py-16 bg-white">

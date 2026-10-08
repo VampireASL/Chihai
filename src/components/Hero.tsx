@@ -1,20 +1,35 @@
 import { ChevronDown } from 'lucide-react';
-import { heroData } from '@/data/mockData';
 import { Link } from 'react-router-dom';
 
-export default function Hero() {
+interface HeroProps {
+  title?: string;
+  subtitle?: string;
+  description?: string;
+  ctaText?: string;
+  bgImage?: string;
+}
+
+export default function Hero({
+  title = '创新驱动未来',
+  subtitle = '赤海智能装备 - 引领行业变革，创造卓越价值',
+  description = '专业从事自动化设备的研发、设计、制造及电阻焊设备制造，引进日本欧美先进技术，积累二十多年丰富经验',
+  ctaText = '了解更多',
+  bgImage,
+}: HeroProps) {
   return (
     <section className="relative min-h-screen flex items-center justify-center overflow-hidden">
       <div className="absolute inset-0 bg-gradient-hero" />
-      <div
-        className="absolute inset-0"
-        style={{
-          backgroundImage: `url('https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=modern%20technology%20corporate%20building%20with%20glass%20facade%20at%20sunset%20professional%20architecture&image_size=landscape_16_9')`,
-          backgroundSize: 'cover',
-          backgroundPosition: 'center',
-          opacity: 0.3,
-        }}
-      />
+      {bgImage && (
+        <div
+          className="absolute inset-0"
+          style={{
+            backgroundImage: `url('${bgImage}')`,
+            backgroundSize: 'cover',
+            backgroundPosition: 'center',
+            opacity: 0.3,
+          }}
+        />
+      )}
       <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-gray-900/50" />
 
       <div className="relative z-10 text-center px-4 max-w-4xl mx-auto">
@@ -24,13 +39,13 @@ export default function Hero() {
         </div>
 
         <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold text-white mb-6 leading-tight">
-          {heroData.title}
+          {title}
           <br />
-          <span className="text-secondary">{heroData.subtitle}</span>
+          <span className="text-secondary">{subtitle}</span>
         </h1>
 
         <p className="text-lg md:text-xl text-white/80 mb-10 max-w-2xl mx-auto">
-          {heroData.description}
+          {description}
         </p>
 
         <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
@@ -38,7 +53,7 @@ export default function Hero() {
             to="/about"
             className="px-8 py-4 bg-secondary text-primary font-semibold rounded-lg hover:bg-secondary/90 transform hover:scale-105 transition-all duration-300 shadow-lg"
           >
-            {heroData.ctaText}
+            {ctaText}
           </Link>
           <Link
             to="/products"
